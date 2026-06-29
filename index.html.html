@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Grammar Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  .container { width: 100%; max-width: 680px; }
+  h1 { font-size: 22px; font-weight: 600; color: #1a1a18; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+  .topic-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab { padding: 7px 18px; border-radius: 8px; border: 1px solid #d0cfc8; background: #fff; color: #555; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+  .tab:hover { border-color: #3b82f6; color: #3b82f6; }
+  .tab.active { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
+  .card { background: #fff; border-radius: 14px; border: 1px solid #e5e4dc; padding: 1.75rem; }
+  .progress-wrap { margin-bottom: 1.25rem; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 6px; }
+  .progress-track { background: #f0efe8; border-radius: 100px; height: 6px; }
+  .progress-fill { height: 6px; border-radius: 100px; background: #3b82f6; transition: width 0.4s; }
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .q-num { font-size: 13px; color: #aaa; }
+  .q-badge { font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 600; }
+  .badge-mc { background: #eff6ff; color: #1d4ed8; }
+  .badge-fill { background: #f0fdf4; color: #166534; }
+  .q-text { font-size: 17px; font-weight: 600; color: #1a1a18; margin-bottom: 1.25rem; line-height: 1.55; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn { text-align: left; padding: 11px 16px; border-radius: 8px; border: 1px solid #e5e4dc; background: #fafaf8; color: #1a1a18; cursor: pointer; font-size: 15px; transition: all 0.15s; }
+  .opt-btn:hover:not(:disabled) { border-color: #3b82f6; background: #eff6ff; }
+  .opt-btn.correct { background: #f0fdf4; border-color: #22c55e; color: #166534; font-weight: 600; }
+  .opt-btn.wrong { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+  .fill-input { width: 100%; padding: 11px 14px; border-radius: 8px; border: 1px solid #d0cfc8; background: #fafaf8; color: #1a1a18; font-size: 15px; margin-bottom: 10px; outline: none; }
+  .fill-input:focus { border-color: #3b82f6; }
+  .fill-input.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+  .fill-input.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+  .check-btn { padding: 10px 22px; border-radius: 8px; border: 1px solid #d0cfc8; background: #fff; color: #1a1a18; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; }
+  .check-btn:hover { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .feedback { margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 14px; }
+  .feedback.ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .feedback.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+  .nav-btn { padding: 10px 22px; border-radius: 8px; border: 1px solid #d0cfc8; background: #fff; color: #1a1a18; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; }
+  .nav-btn:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; }
+  .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .nav-btn.primary { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .nav-btn.primary:hover { background: #2563eb; }
+  .score-box { text-align: center; padding: 2rem 0.5rem; }
+  .score-emoji { font-size: 52px; margin-bottom: 12px; }
+  .score-big { font-size: 52px; font-weight: 700; color: #1a1a18; }
+  .score-label { font-size: 15px; color: #666; margin: 4px 0 1.5rem; }
+  .score-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .pill { padding: 7px 18px; border-radius: 100px; font-size: 14px; font-weight: 600; }
+  .pill-ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .pill-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .restart-btn { padding: 11px 28px; border-radius: 8px; background: #3b82f6; color: #fff; border: none; cursor: pointer; font-size: 15px; font-weight: 600; margin: 4px; transition: background 0.15s; }
+  .restart-btn:hover { background: #2563eb; }
+  .restart-btn.ghost { background: #fff; color: #1a1a18; border: 1px solid #d0cfc8; }
+  .restart-btn.ghost:hover { border-color: #3b82f6; color: #3b82f6; }
+  .divider { height: 1px; background: #e5e4dc; margin: 1.5rem 0; }
+  /* Name screen */
+  .name-screen { text-align: center; padding: 1rem 0; }
+  .name-screen h2 { font-size: 20px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; }
+  .name-screen p { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+  .name-input { width: 100%; padding: 13px 16px; border-radius: 8px; border: 1px solid #d0cfc8; font-size: 16px; color: #1a1a18; outline: none; margin-bottom: 12px; }
+  .name-input:focus { border-color: #3b82f6; }
+  .start-btn { width: 100%; padding: 13px; border-radius: 8px; background: #3b82f6; color: #fff; border: none; cursor: pointer; font-size: 16px; font-weight: 600; transition: background 0.15s; }
+  .start-btn:hover { background: #2563eb; }
+  .sending { color: #3b82f6; font-size: 14px; margin-top: 12px; }
+  .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 1rem; text-align: left; }
+  .detail-table th { background: #f5f5f0; padding: 7px 10px; color: #555; font-weight: 600; border: 1px solid #e5e4dc; }
+  .detail-table td { padding: 7px 10px; border: 1px solid #e5e4dc; color: #333; }
+  .detail-table tr.ok-row td { background: #f0fdf4; }
+  .detail-table tr.err-row td { background: #fef2f2; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>English Grammar Quiz</h1>
+  <p class="subtitle">A1/A2 → B1 · 13–16 yosh · Har dars 20 ta savol</p>
+  <div class="topic-tabs" id="tabs"></div>
+  <div class="card" id="main-card">
+    <div id="name-area"></div>
+  </div>
+</div>
+<script>
+const BOT_TOKEN = "8866918968:AAHLORU8ZpntGWUnvhMuGduVxAi5M5oAxvc";
+const CHAT_ID = "5439306686";
+
+const ALL = {
+  "Present Simple": [
+    {type:"mc",q:"She ___ to school every day.",opts:["go","goes","going","gone"],ans:1},
+    {type:"fill",q:"They ___ (play) football on weekends.",ans:"play"},
+    {type:"mc",q:"He ___ not like coffee.",opts:["do","does","is","are"],ans:1},
+    {type:"fill",q:"My brother ___ (work) in a hospital.",ans:"works"},
+    {type:"mc",q:"Do they ___ English at school?",opts:["study","studies","studying","studied"],ans:0},
+    {type:"fill",q:"Water ___ (boil) at 100°C.",ans:"boils"},
+    {type:"mc",q:"Which sentence is correct?",opts:["He don't like pizza.","He doesn't likes pizza.","He doesn't like pizza.","He isn't like pizza."],ans:2},
+    {type:"fill",q:"The sun ___ (rise) in the east.",ans:"rises"},
+    {type:"mc",q:"___ she speak French?",opts:["Do","Does","Is","Are"],ans:1},
+    {type:"fill",q:"I ___ (not / eat) meat.",ans:"don't eat"},
+    {type:"mc",q:"They ___ football every Saturday.",opts:["plays","play","playing","played"],ans:1},
+    {type:"fill",q:"He ___ (watch) TV in the evenings.",ans:"watches"},
+    {type:"mc",q:"My parents ___ in London.",opts:["lives","living","live","lived"],ans:2},
+    {type:"fill",q:"She ___ (not / know) the answer.",ans:"doesn't know"},
+    {type:"mc",q:"___ your sister work at a hospital?",opts:["Do","Does","Is","Are"],ans:1},
+    {type:"fill",q:"The dogs ___ (bark) at night.",ans:"bark"},
+    {type:"mc",q:"He always ___ his homework.",opts:["do","does","doing","done"],ans:1},
+    {type:"fill",q:"We ___ (not / go) to school on Sundays.",ans:"don't go"},
+    {type:"mc",q:"Which question is correct?",opts:["Does she likes him?","Do she like him?","Does she like him?","Is she like him?"],ans:2},
+    {type:"fill",q:"She ___ (teach) English at our school.",ans:"teaches"},
+  ],
+  "Past Simple": [
+    {type:"mc",q:"She ___ to the market yesterday.",opts:["go","goes","went","gone"],ans:2},
+    {type:"fill",q:"They ___ (watch) a movie last night.",ans:"watched"},
+    {type:"mc",q:"He ___ not come to school last Monday.",opts:["do","does","did","was"],ans:2},
+    {type:"fill",q:"I ___ (see) her at the park.",ans:"saw"},
+    {type:"mc",q:"We ___ football yesterday afternoon.",opts:["play","plays","played","playing"],ans:2},
+    {type:"fill",q:"She ___ (write) a letter to her friend.",ans:"wrote"},
+    {type:"mc",q:"___ you finish your homework?",opts:["Do","Does","Did","Was"],ans:2},
+    {type:"fill",q:"He ___ (buy) a new phone last week.",ans:"bought"},
+    {type:"mc",q:"They ___ at home all day.",opts:["stay","stays","stayed","staying"],ans:2},
+    {type:"fill",q:"We ___ (not / have) breakfast this morning.",ans:"didn't have"},
+    {type:"mc",q:"She ___ very happy when she heard the news.",opts:["is","was","were","be"],ans:1},
+    {type:"fill",q:"He ___ (run) very fast in the race.",ans:"ran"},
+    {type:"mc",q:"Which sentence is correct?",opts:["She didn't went home.","She didn't go home.","She didn't goes home.","She wasn't go home."],ans:1},
+    {type:"fill",q:"They ___ (arrive) late to the party.",ans:"arrived"},
+    {type:"mc",q:"When ___ you last visit your grandparents?",opts:["do","does","did","were"],ans:2},
+    {type:"fill",q:"I ___ (feel) very tired after school.",ans:"felt"},
+    {type:"mc",q:"He ___ his keys at home this morning.",opts:["forget","forgot","forgets","forgetting"],ans:1},
+    {type:"fill",q:"She ___ (not / like) the food at the restaurant.",ans:"didn't like"},
+    {type:"mc",q:"They ___ a lot of fun at the party.",opts:["have","has","had","having"],ans:2},
+    {type:"fill",q:"We ___ (meet) our teacher in the street.",ans:"met"},
+  ],
+  "Pronouns": [
+    {type:"mc",q:"___ is my best friend. (girl)",opts:["He","She","They","It"],ans:1},
+    {type:"fill",q:"That book belongs to me. It is ___ book.",ans:"my"},
+    {type:"mc",q:"Give the bag to ___.",opts:["I","me","my","mine"],ans:1},
+    {type:"fill",q:"This pen is not yours. It is ___. (belonging to me)",ans:"mine"},
+    {type:"mc",q:"___ are my parents. They are kind.",opts:["This","That","These","Those"],ans:2},
+    {type:"fill",q:"She loves ___ cat very much. (belonging to her)",ans:"her"},
+    {type:"mc",q:"The dog bit ___.",opts:["he","him","his","himself"],ans:1},
+    {type:"fill",q:"We did ___ homework on time.",ans:"our"},
+    {type:"mc",q:"Is this bag yours or ___? (belonging to them)",opts:["they","their","them","theirs"],ans:3},
+    {type:"fill",q:"He cut ___ while cooking.",ans:"himself"},
+    {type:"mc",q:"___ car is very fast. (belonging to us)",opts:["We","Us","Our","Ours"],ans:2},
+    {type:"fill",q:"The children enjoyed ___.",ans:"themselves"},
+    {type:"mc",q:"She made the cake ___.",opts:["herself","hers","her","she"],ans:0},
+    {type:"fill",q:"That is not my phone. ___ is over there.",ans:"mine"},
+    {type:"mc",q:"I can do it ___.",opts:["me","my","myself","mine"],ans:2},
+    {type:"fill",q:"___ is raining today.",ans:"It"},
+    {type:"mc",q:"Look at ___ — she's amazing! (object pronoun)",opts:["she","her","hers","herself"],ans:1},
+    {type:"fill",q:"They enjoyed ___ at the party.",ans:"themselves"},
+    {type:"mc",q:"This is Tom's book. It's ___.",opts:["he","him","his","himself"],ans:2},
+    {type:"fill",q:"Can you help ___?",ans:"us"},
+  ]
+};
+
+const TOPICS = Object.keys(ALL);
+let topic = TOPICS[0], questions = [], cur = 0, score = 0, answered = false, userInput = "", finished = false;
+let studentName = "";
+let results = []; // {q, correct, userAns, isOk}
+
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+// ---- NAME SCREEN ----
+function showNameScreen() {
+  document.getElementById("tabs").innerHTML = "";
+  document.getElementById("main-card").innerHTML = `
+    <div class="name-screen">
+      <h2>Ismingizni kiriting</h2>
+      <p>Test boshlanishidan oldin to'liq ismingizni yozing</p>
+      <input class="name-input" id="name-inp" type="text" placeholder="Masalan: Alibek Karimov" autocomplete="off" onkeydown="if(event.key==='Enter')beginQuiz()" />
+      <div style="margin-bottom:1rem">
+        <label style="font-size:13px;color:#555;font-weight:500;">Mavzu:</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          ${TOPICS.map(t=>`<label style="cursor:pointer;font-size:14px;display:flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid #d0cfc8;border-radius:8px;background:#fafaf8">
+            <input type="radio" name="topic" value="${t}" ${t===topic?'checked':''} onchange="topic=this.value" style="accent-color:#3b82f6"> ${t}
+          </label>`).join("")}
+        </div>
+      </div>
+      <button class="start-btn" onclick="beginQuiz()">Testni boshlash →</button>
+    </div>`;
+  setTimeout(()=>{ const el=document.getElementById("name-inp"); if(el)el.focus(); },100);
+}
+
+function beginQuiz() {
+  const val = document.getElementById("name-inp").value.trim();
+  if (!val) { document.getElementById("name-inp").style.borderColor="#ef4444"; return; }
+  studentName = val;
+  questions = shuffle(ALL[topic]).slice(0,20);
+  cur=0; score=0; answered=false; userInput=""; finished=false; results=[];
+  rebuildCard();
+  render();
+}
+
+function rebuildCard() {
+  document.getElementById("main-card").innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="prog-label">1 / 20</span><span id="score-label">Ball: 0</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    </div>
+    <div id="quiz-area"></div>`;
+  renderTabs();
+}
+
+function renderTabs(){
+  document.getElementById("tabs").innerHTML=TOPICS.map(t=>
+    `<div class="tab${t===topic?' active':''}">${t}</div>`
+  ).join("");
+}
+
+function updateProgress(){
+  const pct = finished ? 100 : Math.round((cur/questions.length)*100);
+  const pl = document.getElementById("progress"); if(pl) pl.style.width=pct+"%";
+  const nl = document.getElementById("prog-label"); if(nl) nl.textContent=(finished?"Tugadi":(cur+1))+" / "+questions.length;
+  const sl = document.getElementById("score-label"); if(sl) sl.textContent="Ball: "+score;
+}
+
+function render(){
+  updateProgress();
+  if(finished){renderScore();return;}
+  const q=questions[cur]; answered=false; userInput="";
+  const badge=q.type==="mc"
+    ?'<span class="q-badge badge-mc">Test</span>'
+    :'<span class="q-badge badge-fill">Boʻsh joy</span>';
+  let body="";
+  if(q.type==="mc"){
+    body=`<div class="options">`+q.opts.map((o,i)=>
+      `<button class="opt-btn" id="o${i}" onclick="checkMC(${i})">${["A","B","C","D"][i]}. ${o}</button>`
+    ).join("")+`</div>`;
+  } else {
+    body=`<input class="fill-input" id="fi" type="text" placeholder="Javobingizni yozing..." oninput="userInput=this.value" onkeydown="if(event.key==='Enter')checkFill()" autocomplete="off" />
+    <button class="check-btn" onclick="checkFill()">Tekshirish ✓</button>`;
+  }
+  document.getElementById("quiz-area").innerHTML=`
+    <div class="q-meta"><span class="q-num">Savol ${cur+1}</span>${badge}</div>
+    <div class="q-text">${q.q}</div>
+    <div id="qb">${body}</div>
+    <div id="fb"></div>
+    <div class="nav-row">
+      <button class="nav-btn" onclick="prev()" ${cur===0?"disabled":""}>← Oldingi</button>
+      <button class="nav-btn primary" onclick="next()">${cur===questions.length-1?"Tugat →":"Keyingi →"}</button>
+    </div>`;
+  if(q.type!=="mc") setTimeout(()=>{const e=document.getElementById("fi");if(e)e.focus();},50);
+}
+
+function checkMC(i){
+  if(answered)return; answered=true;
+  const q=questions[cur], c=q.ans;
+  document.querySelectorAll(".opt-btn").forEach((b,idx)=>{
+    b.disabled=true;
+    if(idx===c)b.classList.add("correct");
+    else if(idx===i&&i!==c)b.classList.add("wrong");
+  });
+  const ok=i===c;
+  if(ok)score++;
+  results.push({q:q.q, correct:q.opts[c], userAns:q.opts[i], isOk:ok});
+  showFB(ok, q.opts[c]);
+  updateProgress();
+}
+
+function checkFill(){
+  if(answered)return; answered=true;
+  const q=questions[cur];
+  const val=userInput.trim().toLowerCase();
+  const ok=val===q.ans.toLowerCase();
+  if(ok)score++;
+  const el=document.getElementById("fi");
+  if(el){el.disabled=true;el.classList.add(ok?"correct":"wrong");}
+  results.push({q:q.q, correct:q.ans, userAns:userInput.trim()||"(bo'sh)", isOk:ok});
+  showFB(ok, q.ans);
+  updateProgress();
+}
+
+function showFB(ok, correct){
+  const fb=document.getElementById("fb");
+  if(fb) fb.innerHTML=ok
+    ?`<div class="feedback ok">✓ To'g'ri!</div>`
+    :`<div class="feedback err">✗ Noto'g'ri. To'g'ri javob: <strong>${correct}</strong></div>`;
+}
+
+function next(){
+  if(!answered){
+    const q=questions[cur];
+    if(q.type==="mc"){
+      document.querySelectorAll(".opt-btn").forEach((b,i)=>{b.disabled=true;if(i===q.ans)b.classList.add("correct");});
+      results.push({q:q.q, correct:q.opts[q.ans], userAns:"(javob berilmadi)", isOk:false});
+    } else {
+      const el=document.getElementById("fi");
+      if(el){el.disabled=true;el.classList.add("wrong");}
+      results.push({q:q.q, correct:q.ans, userAns:"(javob berilmadi)", isOk:false});
+    }
+    showFB(false, questions[cur].ans||questions[cur].opts[questions[cur].ans]);
+    answered=true; updateProgress();
+    setTimeout(()=>advance(),600);
+  } else { advance(); }
+}
+function advance(){
+  if(cur<questions.length-1){cur++;render();}
+  else{finished=true;render();}
+}
+function prev(){if(cur>0){cur--;render();}}
+
+async function sendToTelegram(msg){
+  const url=`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  try {
+    await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({chat_id:CHAT_ID, text:msg, parse_mode:"HTML"})
+    });
+  } catch(e){ console.error("Telegram xato:",e); }
+}
+
+function renderScore(){
+  const pct=Math.round(score/questions.length*100);
+  const emoji=pct>=80?"🏆":pct>=60?"👍":"📚";
+  const msg=pct>=80?"Ajoyib natija!":pct>=60?"Yaxshi, lekin yana mashq qiling!":"Ko'proq takrorlash kerak!";
+
+  // Wrong answers list
+  const wrongs = results.filter(r=>!r.isOk);
+  let wrongRows = wrongs.map((r,i)=>`<tr class="err-row"><td>${i+1}</td><td>${r.q}</td><td style="color:#991b1b">${r.userAns}</td><td style="color:#166534">${r.correct}</td></tr>`).join("");
+  let tableHtml = wrongs.length===0
+    ? `<p style="color:#166534;font-size:14px;margin-top:1rem">✓ Barcha savollar to'g'ri!</p>`
+    : `<table class="detail-table"><thead><tr><th>#</th><th>Savol</th><th>Javob</th><th>To'g'ri</th></tr></thead><tbody>${wrongRows}</tbody></table>`;
+
+  document.getElementById("quiz-area").innerHTML=`
+    <div class="score-box">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-big">${score}/${questions.length}</div>
+      <div class="score-label">${msg} — ${pct}%</div>
+      <div class="score-pills">
+        <span class="pill pill-ok">✓ To'g'ri: ${score}</span>
+        <span class="pill pill-err">✗ Xato: ${questions.length-score}</span>
+      </div>
+      <div id="tg-status" class="sending">📤 Natija o'qituvchiga yuborilmoqda...</div>
+      <div class="divider"></div>
+      <p style="font-size:14px;color:#555;margin-bottom:12px;font-weight:600;">Xato javoblar:</p>
+      ${tableHtml}
+      <div class="divider"></div>
+      <button class="restart-btn" onclick="showNameScreen()">Yangi test</button>
+    </div>`;
+
+  // Build Telegram message
+  const now = new Date();
+  const time = now.toLocaleString("uz-UZ",{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit",year:"numeric"});
+  let tgMsg = `📝 <b>Yangi test natijasi</b>\n\n`;
+  tgMsg += `👤 <b>O'quvchi:</b> ${studentName}\n`;
+  tgMsg += `📚 <b>Mavzu:</b> ${topic}\n`;
+  tgMsg += `🕐 <b>Vaqt:</b> ${time}\n`;
+  tgMsg += `📊 <b>Natija:</b> ${score}/${questions.length} (${pct}%)\n`;
+  tgMsg += `✅ <b>To'g'ri:</b> ${score}  ❌ <b>Xato:</b> ${questions.length-score}\n`;
+  if(wrongs.length>0){
+    tgMsg += `\n❌ <b>Xato javoblar:</b>\n`;
+    wrongs.forEach((r,i)=>{
+      tgMsg += `${i+1}. ${r.q}\n   Javob: <i>${r.userAns}</i> → To'g'ri: <b>${r.correct}</b>\n`;
+    });
+  } else {
+    tgMsg += `\n🌟 Barcha savollar to'g'ri javoblandi!`;
+  }
+
+  sendToTelegram(tgMsg).then(()=>{
+    const el=document.getElementById("tg-status");
+    if(el) el.innerHTML=`<span style="color:#166534">✓ Natija o'qituvchiga yuborildi!</span>`;
+  }).catch(()=>{
+    const el=document.getElementById("tg-status");
+    if(el) el.innerHTML=`<span style="color:#991b1b">⚠ Yuborishda xatolik. Internet aloqasini tekshiring.</span>`;
+  });
+}
+
+// Start
+showNameScreen();
+</script>
+</body>
+</html>
